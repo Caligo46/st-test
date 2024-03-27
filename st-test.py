@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import altair as alt
 
 # 앱 제목 설정
-st.title('시계열 데이터 수정 가능한 테이블')
+st.title('아아 테스트중입니다 /n 시계열 데이터 수정 가능한 테이블과 그래프')
 
 # 데이터 생성 함수
 def generate_data(num_points):
@@ -30,3 +31,15 @@ if st.button('업데이트'):
 
 # 수정된 데이터프레임 표시
 st.write("### 수정된 데이터", st.session_state.dataframe)
+
+# Altair를 이용한 시각화
+chart = alt.Chart(st.session_state.dataframe).mark_line().encode(
+    x='Time Stamp:T',
+    y='Value:Q',
+    tooltip=['Time Stamp:T', 'Value:Q']
+).interactive().properties(
+    width=800,
+    height=400
+)
+
+st.altair_chart(chart, use_container_width=True)
