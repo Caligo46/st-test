@@ -3,25 +3,33 @@ import pandas as pd
 import altair as alt
 
 # 앱 제목 설정
-st.title('시계열 데이터 표시 및 Altair 그래프 그리기')
+st.title('CSV 파일 데이터 시각화')
 
-# 파일 업로더를 통한 데이터 업로드
-uploaded_file = st.file_uploader("파일 업로드", type=['csv'])
+# 파일 업로더 생성
+uploaded_file = st.file_uploader("CSV 파일을 선택해주세요", type=['csv'])
+
 if uploaded_file is not None:
     # 데이터를 DataFrame으로 읽기
     df = pd.read_csv(uploaded_file)
     
-    # 테이블 형태로 데이터 표시
-    st.write("### 업로드된 데이터", df)
+    # 업로드된 데이터의 헤더 표시
+    st.write("### 데이터 미리보기", df.head())
     
-    # Altair를 사용한 그래프 그리기
-    st.write("### 시계열 그래프")
-    c = alt.Chart(df).mark_line().encode(
-        x='타임스탬프:T',  # 타임스탬프 컬럼의 데이터 형식이 datetime이라고 가정
-        y='특성값:Q'      # 특성값 컬럼의 데이터 형식이 수량(quantitative)이라고 가정
-    ).properties(
+    # 데이터의 헤더에서 선택 가능한 옵션 생성
+    column_names = df.columns.tolist()
+    
+    # x축과 y축을 위한 헤더 선택
+    x_axis = st.selectbox("X 축을 선택하세요", column_names, index=0)
+    y_axis = st.selectbox("Y 축을 선택하세요", column_names, index=1 if len(column_names) > 1 else 0)
+    
+    # Altair를 이용한 그래프 그리기
+    chart = alt.Chart(df).mark_line().encode(
+        x=x_axis,
+        y=y_axis,
+        tooltip=[x_axis, y_axis]
+    ).interactive().properties(
         width=800,
         height=400
     )
     
-    st.altair_chart(c, use_container_width=True)
+    st.altair_chart(chart, use_container_width=True)
