@@ -4,7 +4,7 @@ import numpy as np
 import altair as alt
 
 # 앱 제목 설정
-st.title('시계열 데이터와 Altair 그래프')
+st.title('아아 테스트중입니다 \n 시계열 데이터와 Altair 그래프')
 
 # 데이터 생성
 def generate_data(num_points):
