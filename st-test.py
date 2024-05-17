@@ -1,41 +1,66 @@
 import streamlit as st
 from pyvis.network import Network
 import networkx as nx
+import tempfile
 
 # Streamlit 앱 제목
-st.title("Graph Visualization with Streamlit and Pyvis")
+st.title("Interactive Graph Visualization with Streamlit and Pyvis")
 
-# 노드와 엣지를 입력받기 위한 폼
-st.sidebar.header("Graph Input")
-nodes_input = st.sidebar.text_area("Enter nodes (comma separated):", "A,B,C,D")
-edges_input = st.sidebar.text_area("Enter edges (comma separated, format: node1-node2):", "A-B,B-C,C-D,D-A")
+# 노드와 엣지 입력을 위한 폼
+st.sidebar.header("Add Nodes and Edges")
+node = st.sidebar.text_input("Enter a node:")
+add_node = st.sidebar.button("Add Node")
 
-# 노드와 엣지 입력값 파싱
-nodes = [node.strip() for node in nodes_input.split(",")]
-edges = [tuple(edge.strip().split("-")) for edge in edges_input.split(",")]
+edge_start = st.sidebar.selectbox("Start node for edge:", st.session_state.get('nodes', []))
+edge_end = st.sidebar.selectbox("End node for edge:", st.session_state.get('nodes', []))
+add_edge = st.sidebar.button("Add Edge")
+
+# 세션 상태에 노드와 엣지 저장
+if 'nodes' not in st.session_state:
+    st.session_state['nodes'] = []
+if 'edges' not in st.session_state:
+    st.session_state['edges'] = []
+
+# 노드 추가 처리
+if add_node and node:
+    if node not in st.session_state['nodes']:
+        st.session_state['nodes'].append(node)
+
+# 엣지 추가 처리
+if add_edge and edge_start and edge_end:
+    if (edge_start, edge_end) not in st.session_state['edges']:
+        st.session_state['edges'].append((edge_start, edge_end))
 
 # Pyvis 네트워크 생성
 net = Network(height="750px", width="100%", notebook=True)
 
-# 노드 추가
-for node in nodes:
+# 노드와 엣지 추가
+for node in st.session_state['nodes']:
     net.add_node(node, label=node)
 
-# 엣지 추가
-for edge in edges:
+for edge in st.session_state['edges']:
     net.add_edge(*edge)
 
 # 네트워크 렌더링
-net.show("graph.html")
+with tempfile.NamedTemporaryFile(delete=False, suffix=".html") as tmpfile:
+    net.save_graph(tmpfile.name)
+    html_path = tmpfile.name
 
 # Streamlit에 Pyvis 네트워크 렌더링
 st.write("### Graph Visualization")
-st.components.v1.html(open("graph.html", 'r').read(), height=800)
+st.components.v1.html(open(html_path, 'r').read(), height=800)
 
 # 네트워크 정보 출력
 st.write("### Network Information")
-st.write(f"**Nodes:** {', '.join(nodes)}")
-st.write(f"**Edges:** {', '.join([f'{e[0]}-{e[1]}' for e in edges])}")
+st.write(f"**Nodes:** {', '.join(st.session_state['nodes'])}")
+st.write(f"**Edges:** {', '.join([f'{e[0]}-{e[1]}' for e in st.session_state['edges']])}")
+
+# 노드와 엣지 초기화 버튼
+reset_graph = st.sidebar.button("Reset Graph")
+if reset_graph:
+    st.session_state['nodes'] = []
+    st.session_state['edges'] = []
+
 
 
 # import streamlit as st
