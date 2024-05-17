@@ -48,7 +48,7 @@ with tempfile.NamedTemporaryFile(delete=False, suffix=".html") as tmpfile:
 
 # Streamlit에 Pyvis 네트워크 렌더링
 st.write("### Graph Visualization")
-st.components.v1.html(open(html_path, 'r').read(), height=800)
+st.components.v1.html(open('test.html', 'r').read(), height=800)
 
 # 네트워크 정보 출력
 st.write("### Network Information")
